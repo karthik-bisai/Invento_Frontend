@@ -1,0 +1,14 @@
+# Invento: the public pages can be indexed; the signed-in app can't.
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /inventory
+Disallow: /products
+Disallow: /warehouses
+Disallow: /reports
+Disallow: /users
+Disallow: /profile
+Disallow: /settings
+Disallow: /signup/
+Disallow: /login/
+Disallow: /reset-password
