@@ -1,32 +1,18 @@
-# React + TypeScript + Vite
+# Invento web app
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Vite, React, TypeScript, Tailwind CSS and TanStack Query. It talks only to the gateway (`VITE_API_URL`, default `http://localhost:4000/api/v1`; copy `.env.example` to `.env.local` to change it).
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```
+npm install
+npm run dev          # http://localhost:5173
+npm test
+npm run lint
+npm run build        # static files in dist/
+npm run icons        # regenerate the logo, favicon and app icons in public/
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Start the whole system (with Postgres and Redis) from the `backend/` repository: `python run.py --all`.
+
+The mark is an isometric box generated from one definition by `scripts/make-icons.mjs`. The Terms and Privacy pages describe what the software does and need your organization's own legal review before launch.
+
+This repository has no Dockerfile or web-server config on purpose: the deployment team adds them (it builds to static files).
