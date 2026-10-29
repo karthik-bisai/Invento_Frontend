@@ -12,6 +12,8 @@ import { PendingPage } from '@/features/auth/PendingPage'
 import { RequireRole } from '@/features/auth/RequireRole'
 import { ResetPasswordPage } from '@/features/auth/ResetPasswordPage'
 import { SignupPage } from '@/features/auth/SignupPage'
+import { AdminSignupPage } from '@/features/auth/AdminSignupPage'
+import { EmployeeSignupPage } from '@/features/auth/EmployeeSignupPage'
 import { VerifyPage } from '@/features/auth/VerifyPage'
 import { LandingPage } from '@/features/landing/LandingPage'
 import { PrivacyPage, TermsPage } from '@/features/legal/LegalPages'
@@ -51,16 +53,28 @@ export function AppRoutes() {
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/signup" element={<SignupPage />} />
+      <Route path="/signup/admin" element={<AdminSignupPage />} />
+      <Route path="/signup/employee" element={<EmployeeSignupPage />} />
       <Route path="/signup/verify" element={<VerifyPage />} />
       <Route path="/signup/pending" element={<PendingPage />} />
       <Route path="/terms" element={<TermsPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
+      {/* Grouped /auth/* routes so both /auth/login and /login work seamlessly */}
+      <Route path="/auth/login" element={<LoginPage />} />
+      <Route path="/auth/login/code" element={<CodeSignInPage />} />
+      <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/auth/signup" element={<SignupPage />} />
+      <Route path="/auth/signup/admin" element={<AdminSignupPage />} />
+      <Route path="/auth/signup/employee" element={<EmployeeSignupPage />} />
+      <Route path="/auth/signup/verify" element={<VerifyPage />} />
+      <Route path="/auth/signup/pending" element={<PendingPage />} />
       <Route element={<AppLayout />}>
         {NAV_ITEMS.map((item) => (
           <Route
             key={item.to}
             path={item.to}
-            element={<RequireRole roles={item.roles ?? ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_STAFF']}>{PAGES[item.to]}</RequireRole>}
+            element={<RequireRole roles={item.roles} permission={item.permission}>{PAGES[item.to]}</RequireRole>}
           />
         ))}
         {/* Personal pages: every signed-in role, reached from the account menu rather than the dock. */}
@@ -76,11 +90,11 @@ export default function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <BrowserRouter>
+        <BrowserRouter>
+          <AuthProvider>
             <AppRoutes />
-          </BrowserRouter>
-        </AuthProvider>
+          </AuthProvider>
+        </BrowserRouter>
       </QueryClientProvider>
     </ErrorBoundary>
   )

@@ -1,7 +1,10 @@
-import type { CSSProperties } from 'react'
-import { AlertTriangle, Boxes, CircleDollarSign, Package, type LucideIcon } from 'lucide-react'
+import type { CSSProperties, ReactNode } from 'react'
+import { AlertTriangle, Boxes, Package, type LucideIcon } from 'lucide-react'
 import { CountUp } from '@/components/ui/CountUp'
+import { CurrencyIcon } from '@/components/ui/CurrencyIcon'
+import { useAuth } from '@/features/auth/AuthContext'
 import { cn } from '@/lib/cn'
+import { getAppCurrency } from '@/lib/currency'
 import { int, money } from '@/lib/format'
 import { useInventorySummary } from './hooks'
 
@@ -9,7 +12,8 @@ interface KpiProps {
   label: string
   value: number
   format: (n: number) => string
-  icon: LucideIcon
+  icon?: LucideIcon
+  iconElement?: ReactNode
   loading: boolean
   index: number
   tone?: 'default' | 'alert'
@@ -17,7 +21,7 @@ interface KpiProps {
   hint?: string
 }
 
-function Kpi({ label, value, format, icon: Icon, loading, index, tone = 'default', onClick, hint }: KpiProps) {
+function Kpi({ label, value, format, icon: Icon, iconElement, loading, index, tone = 'default', onClick, hint }: KpiProps) {
   const Tag = onClick ? 'button' : 'div'
   return (
     <Tag
@@ -32,7 +36,13 @@ function Kpi({ label, value, format, icon: Icon, loading, index, tone = 'default
     >
       <div className="flex items-center justify-between">
         <p className="eyebrow">{label}</p>
-        <Icon className={cn('size-4', tone === 'alert' ? 'text-warn-fg' : 'text-fg-subtle')} aria-hidden />
+        {iconElement ? (
+          <span className={cn('flex items-center justify-center', tone === 'alert' ? 'text-warn-fg' : 'text-fg-subtle')}>
+            {iconElement}
+          </span>
+        ) : Icon ? (
+          <Icon className={cn('size-4', tone === 'alert' ? 'text-warn-fg' : 'text-fg-subtle')} aria-hidden />
+        ) : null}
       </div>
       {loading ? (
         <div className="skeleton mt-3 h-9 w-28 rounded" />
@@ -48,6 +58,8 @@ function Kpi({ label, value, format, icon: Icon, loading, index, tone = 'default
 /** Summary KPIs from GET /inventory/summary (Redis-cached for 60s server-side, invalidated on writes). */
 export function KpiCards({ onLowStockClick }: { onLowStockClick?: () => void }) {
   const { data: s, isLoading, isError } = useInventorySummary()
+  const { user } = useAuth()
+  const currencyCode = user?.organization_currency || getAppCurrency()
 
   return (
     <section aria-label="Key figures" className="flex flex-col gap-3">
@@ -70,7 +82,14 @@ export function KpiCards({ onLowStockClick }: { onLowStockClick?: () => void }) 
           hint={onLowStockClick ? 'Show products below their reorder level' : undefined}
         />
         <Kpi label="Total SKUs" value={s?.total_products ?? 0} format={(n) => int.format(Math.round(n))} icon={Package} loading={isLoading} index={2} />
-        <Kpi label="Inventory value" value={Number(s?.total_value ?? 0)} format={(n) => money.format(n)} icon={CircleDollarSign} loading={isLoading} index={3} />
+        <Kpi
+          label="Inventory value"
+          value={Number(s?.total_value ?? 0)}
+          format={(n) => money.format(n, currencyCode)}
+          iconElement={<CurrencyIcon currency={currencyCode} className="size-4" />}
+          loading={isLoading}
+          index={3}
+        />
       </div>
     </section>
   )

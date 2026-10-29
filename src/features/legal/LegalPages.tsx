@@ -2,7 +2,6 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { Logo } from '@/components/brand/Logo'
-import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
 const UPDATED = '23 October 2026'
 
@@ -13,7 +12,6 @@ function LegalLayout({ title, intro, children }: { title: string; intro: string;
         <Link to="/" aria-label="Back to home" className="rounded-md">
           <Logo />
         </Link>
-        <ThemeToggle />
       </header>
 
       <main className="mx-auto w-full max-w-3xl flex-1 px-5 pb-20 pt-6 sm:px-8">

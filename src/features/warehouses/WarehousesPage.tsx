@@ -9,6 +9,7 @@ import { Pagination } from '@/components/ui/Pagination'
 import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 import { int, money } from '@/lib/format'
 import type { Warehouse, WarehouseSummary } from '@/types'
+import { useAuth } from '@/features/auth/AuthContext'
 import { useInventorySummary } from '@/features/inventory/hooks'
 import { useWarehouseList } from './hooks'
 import { WarehouseDrawer, type WarehouseTarget } from './WarehouseDrawer'
@@ -16,6 +17,8 @@ import { WarehouseDrawer, type WarehouseTarget } from './WarehouseDrawer'
 const PAGE_SIZE = 15
 
 export function WarehousesPage() {
+  const { hasRole, can } = useAuth()
+  const canCreate = can('warehouses:create') || hasRole('ADMIN', 'INVENTORY_MANAGER')
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [target, setTarget] = useState<WarehouseTarget>(null)
@@ -37,15 +40,17 @@ export function WarehousesPage() {
   ]
 
   return (
-    <div className="mx-auto flex max-w-7xl flex-col gap-4">
+    <div className="flex w-full flex-col gap-4">
       <PageHeader
         title="Warehouses"
         description="Stocking locations and what each one holds."
         action={
-          <Button variant="primary" onClick={() => setTarget('new')}>
-            <Plus className="size-3.5" aria-hidden />
-            New warehouse
-          </Button>
+          canCreate && (
+            <Button variant="primary" onClick={() => setTarget('new')}>
+              <Plus className="size-3.5" aria-hidden />
+              New warehouse
+            </Button>
+          )
         }
       />
 

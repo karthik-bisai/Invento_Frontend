@@ -20,10 +20,10 @@ interface VerifyState {
 const CODE_LENGTH = 6
 
 export function VerifyPage() {
-  const { user } = useAuth()
+  const { user, refresh } = useAuth()
   const navigate = useNavigate()
   const state = (useLocation().state ?? {}) as VerifyState
-  const email = state.email
+  const email = state.email || user?.email
 
   const [code, setCode] = useState('')
   const [error, setError] = useState<string>()
@@ -75,6 +75,11 @@ export function VerifyPage() {
     setNotice(undefined)
     try {
       const { data } = await api.post<{ status: 'pending_approval' | 'approved' }>('/auth/verify-otp', { email, code: value })
+      if (user) {
+        await refresh()
+        navigate('/profile', { replace: true, state: { notice: 'Your email address has been verified successfully.' } })
+        return
+      }
       if (data.status === 'approved') navigate('/login', { replace: true, state: { notice: 'Your email is confirmed and your account is ready. Sign in to continue.' } })
       else navigate('/signup/pending', { replace: true, state: { email } })
     } catch (err) {
@@ -95,7 +100,7 @@ export function VerifyPage() {
     if (next.length === CODE_LENGTH) void verify(next) // no button press needed once the last digit lands
   }
 
-  if (user) return <Navigate to="/dashboard" replace />
+  if (user && user.email_verified) return <Navigate to="/dashboard" replace />
   if (!email) return <Navigate to="/signup" replace />
 
   return (

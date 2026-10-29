@@ -2,7 +2,6 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { Logo } from '@/components/brand/Logo'
 import { LedgerDemo } from '@/components/brand/LedgerDemo'
-import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
 /** Split layout shared by sign in and sign up: form on the left, a live preview of the product on the right. */
 export function AuthShell({ children }: { children: ReactNode }) {
@@ -13,7 +12,6 @@ export function AuthShell({ children }: { children: ReactNode }) {
           <Link to="/" aria-label="Back to home" className="rounded-md">
             <Logo />
           </Link>
-          <ThemeToggle />
         </div>
         <div className="animate-rise m-auto w-full max-w-sm py-12">{children}</div>
         <nav aria-label="Legal" className="flex gap-4 text-xs text-fg-subtle">

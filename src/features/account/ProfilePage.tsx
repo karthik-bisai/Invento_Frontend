@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type DragEvent, type FormEvent } from 'react'
-import { Camera, Check, Trash2 } from 'lucide-react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { Building2, Camera, Check, ShieldAlert, Trash2 } from 'lucide-react'
 import { getErrorMessage } from '@/api/errors'
 import { Avatar } from '@/components/layout/Avatar'
 import { Badge } from '@/components/ui/Badge'
@@ -23,6 +24,10 @@ export function ProfilePage() {
 }
 
 function ProfileView({ user }: { user: User }) {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const notice = (location.state as { notice?: string } | null)?.notice
+
   const update = useUpdateProfile()
   const upload = useUploadAvatar()
   const remove = useRemoveAvatar()
@@ -31,6 +36,7 @@ function ProfileView({ user }: { user: User }) {
   const [title, setTitle] = useState(user?.job_title ?? '')
   const [phone, setPhone] = useState(user?.phone ?? '')
   const [saved, setSaved] = useState(false)
+  const [verifying, setVerifying] = useState(false)
   const [formError, setFormError] = useState<string>()
   const [photoError, setPhotoError] = useState<string>()
   const [preview, setPreview] = useState<string>()
@@ -47,18 +53,23 @@ function ProfileView({ user }: { user: User }) {
   useEffect(() => () => (preview ? URL.revokeObjectURL(preview) : undefined), [preview])
 
   const phoneError = phone.trim() && !PHONE.test(phone.trim()) ? 'Use digits, spaces and + ( ) - . only.' : undefined
-  const dirty = name.trim() !== (user.full_name ?? '') || title.trim() !== (user.job_title ?? '') || phone.trim() !== (user.phone ?? '')
+  const dirty = name.trim() !== (user.full_name ?? '') || (user.role === 'ADMIN' && title.trim() !== (user.job_title ?? '')) || phone.trim() !== (user.phone ?? '')
 
   async function save(e: FormEvent) {
     e.preventDefault()
     if (!dirty || phoneError) return
     setFormError(undefined)
     try {
-      await update.mutateAsync({ full_name: name, job_title: title, phone })
+      await update.mutateAsync({ full_name: name, job_title: user.role === 'ADMIN' ? title : (user.job_title ?? ''), phone })
       setSaved(true)
     } catch (err) {
       setFormError(getErrorMessage(err, 'We couldn’t save your profile. Please try again.'))
     }
+  }
+
+  function onVerifyEmail() {
+    setVerifying(true)
+    navigate('/signup/verify', { state: { email: user.email, resend: true } })
   }
 
   async function choose(file: File | undefined) {
@@ -97,6 +108,13 @@ function ProfileView({ user }: { user: User }) {
   return (
     <div className="mx-auto max-w-4xl">
       <PageHeader title="Profile" description="How you appear to your team." />
+
+      {notice && (
+        <div className="mb-6 flex items-center gap-2 rounded-lg border border-ok-ring bg-ok-bg p-4 text-sm text-ok-fg">
+          <Check className="size-4 shrink-0" />
+          <span>{notice}</span>
+        </div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-[18rem_1fr]">
         <section aria-label="Photo" className="h-fit rounded-lg border border-border bg-surface p-6 text-center">
@@ -143,31 +161,101 @@ function ProfileView({ user }: { user: User }) {
 
         <form onSubmit={save} noValidate aria-label="Details" className="flex flex-col gap-5 rounded-lg border border-border bg-surface p-6">
           <Input label="Full name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} maxLength={120} />
-          <Input label="Job title" autoComplete="organization-title" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} />
+          <Input
+            label="Job title"
+            autoComplete="organization-title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            disabled={user.role !== 'ADMIN'}
+            maxLength={120}
+            hint={user.role !== 'ADMIN' ? 'Job title is managed by your administrator.' : undefined}
+          />
           <Input label="Phone" type="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} error={phoneError} maxLength={32} />
 
-          <div className="grid gap-5 border-t border-border pt-5 sm:grid-cols-2">
-            <div>
-              <Input label="Email" value={user.email} disabled readOnly />
-              <p className="mt-1.5 flex items-center gap-1.5 text-xs text-fg-subtle">
-                {user.email_verified !== false && <Badge variant="success">Verified</Badge>}
-                Your email is your sign-in and can’t be changed here.
-              </p>
+          {/* Email and Verification Status */}
+          <div className="rounded-lg border border-border bg-surface-raised/40 p-4">
+            <Input label="Email" value={user.email} disabled readOnly />
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <span className="text-xs text-fg-subtle">Your email is your sign-in address.</span>
+              <div className="flex items-center gap-2">
+                {user.email_verified !== false ? (
+                  <Badge variant="success">Verified</Badge>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Badge variant="warning">Unverified</Badge>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={onVerifyEmail}
+                      loading={verifying}
+                      className="h-7 text-xs"
+                    >
+                      Verify Email
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
-            <dl className="grid content-start gap-3 text-sm">
+            {user.email_verified === false && (
+              <div className="mt-3 flex items-center gap-2 text-xs text-warn-fg">
+                <ShieldAlert className="size-4 shrink-0" />
+                <span>Please verify your email address to secure your account.</span>
+              </div>
+            )}
+          </div>
+
+          {/* Organizational Assignment (Read-only as per Section 13.1) */}
+          <div className="rounded-lg border border-border bg-surface-raised/40 p-4">
+            <div className="flex items-center justify-between border-b border-border pb-2.5">
+              <span className="text-xs font-semibold uppercase tracking-wider text-fg-muted">
+                Organizational Assignment
+              </span>
+              <span className="text-xs text-fg-subtle">Managed by administrator</span>
+            </div>
+
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div>
                 <dt className="text-xs font-medium text-fg-muted">Role</dt>
-                <dd className="mt-1.5">
+                <dd className="mt-1">
                   <Badge variant={user.role === 'ADMIN' ? 'info' : 'neutral'}>{ROLE_LABELS[user.role]}</Badge>
                 </dd>
               </div>
+
+              <div>
+                <dt className="text-xs font-medium text-fg-muted">Job Title</dt>
+                <dd className="mt-1 text-sm font-medium text-fg">
+                  {user.job_title ? user.job_title : <span className="italic text-fg-subtle">Not assigned</span>}
+                </dd>
+              </div>
+
+              <div>
+                <dt className="text-xs font-medium text-fg-muted">Department</dt>
+                <dd className="mt-1 text-sm font-medium text-fg">
+                  {user.department ? user.department : <span className="italic text-fg-subtle">Not assigned</span>}
+                </dd>
+              </div>
+
+              <div>
+                <dt className="text-xs font-medium text-fg-muted">Organization</dt>
+                <dd className="mt-1 flex items-center gap-1.5 text-sm font-medium text-fg">
+                  <Building2 className="size-3.5 text-accent" />
+                  <span>{user.organization_name ?? 'Invento Workspace'}</span>
+                  {user.org_code && (
+                    <span className="rounded bg-surface-raised px-1.5 py-0.5 font-mono text-[11px] text-fg-muted">
+                      {user.org_code}
+                    </span>
+                  )}
+                </dd>
+              </div>
+
               {user.created_at && (
                 <div>
                   <dt className="text-xs font-medium text-fg-muted">Member since</dt>
-                  <dd className="mt-1">{shortDate(user.created_at)}</dd>
+                  <dd className="mt-1 text-sm text-fg-muted">{shortDate(user.created_at)}</dd>
                 </div>
               )}
-            </dl>
+            </div>
           </div>
 
           {formError && (
@@ -175,7 +263,8 @@ function ProfileView({ user }: { user: User }) {
               {formError}
             </p>
           )}
-          <div className="flex items-center justify-end gap-3">
+
+          <div className="flex items-center justify-end gap-3 pt-2">
             <span aria-live="polite" className="flex items-center gap-1.5 text-xs text-ok-fg">
               {saved && (
                 <>

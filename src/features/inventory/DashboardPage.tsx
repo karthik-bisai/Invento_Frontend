@@ -28,7 +28,7 @@ export function DashboardPage() {
   const lowStock = useLowStock()
 
   return (
-    <div className="mx-auto flex max-w-7xl flex-col gap-6">
+    <div className="flex w-full flex-col gap-6">
       <PageHeader title="Overview" description="Where stock stands across every warehouse right now." />
       <KpiCards onLowStockClick={() => navigate('/inventory?low=1')} />
 

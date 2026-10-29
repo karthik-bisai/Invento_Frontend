@@ -37,7 +37,7 @@ export function UserMenu() {
         aria-label="Account menu"
         aria-expanded={open}
         aria-haspopup="true"
-        className="grid cursor-pointer place-items-center rounded-full transition-transform duration-150 hover:scale-105 active:scale-95"
+        className="flex size-11 cursor-pointer items-center justify-center rounded-full transition-[background-color,transform] duration-150 hover:bg-surface-hover hover:scale-105 active:scale-95"
       >
         <Avatar email={user.email} name={user.full_name} src={user.avatar_url} />
       </button>
@@ -45,7 +45,7 @@ export function UserMenu() {
         <div
           role="region"
           aria-label="Account"
-          className="animate-pop absolute right-0 top-full z-50 mt-2 w-64 origin-top-right overflow-hidden rounded-xl border border-border bg-surface shadow-pop"
+          className="animate-pop absolute right-0 bottom-full z-50 mb-3 w-64 origin-bottom-right overflow-hidden rounded-xl border border-border bg-surface shadow-pop"
         >
           <div className="flex items-center gap-3 px-4 py-3">
             <Avatar email={user.email} name={user.full_name} src={user.avatar_url} className="size-10 text-sm" />
@@ -64,7 +64,14 @@ export function UserMenu() {
               Settings
             </Link>
           </div>
-          <button type="button" onClick={() => void logout()} className={`${item} border-t border-border`}>
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false)
+              void logout()
+            }}
+            className={`${item} border-t border-border`}
+          >
             <LogOut className="size-4" aria-hidden />
             Sign out
           </button>

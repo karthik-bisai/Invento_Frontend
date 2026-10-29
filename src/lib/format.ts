@@ -1,5 +1,9 @@
+import { formatMoney } from './currency'
+
 export const int = new Intl.NumberFormat('en-US')
-export const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })
+export const money = {
+  format: (amount: number | string | null | undefined, currency?: string) => formatMoney(amount, currency),
+}
 
 const relative = new Intl.RelativeTimeFormat('en', { numeric: 'auto' })
 const UNITS: [Intl.RelativeTimeFormatUnit, number][] = [

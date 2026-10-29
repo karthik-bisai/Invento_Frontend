@@ -75,9 +75,24 @@ export function SignupPage() {
   return (
     <AuthShell>
       <h1 className="font-display text-5xl leading-none">Create your account</h1>
-      <p className="mt-3 text-sm text-fg-muted">Start as warehouse staff. An administrator approves new accounts and can change your role later.</p>
+      <p className="mt-3 text-sm text-fg-muted">Choose your registration type or fill in your details below.</p>
 
-      <form noValidate onSubmit={onSubmit} className="mt-8 flex flex-col gap-4">
+      <div className="mt-4 grid grid-cols-2 gap-2 rounded-lg bg-surface-raised p-1 text-xs font-medium">
+        <Link
+          to="/signup/admin"
+          className="flex items-center justify-center rounded-md px-3 py-2 text-center transition-colors hover:bg-surface text-fg"
+        >
+          Administrator
+        </Link>
+        <Link
+          to="/signup/employee"
+          className="flex items-center justify-center rounded-md px-3 py-2 text-center transition-colors hover:bg-surface text-fg"
+        >
+          Employee
+        </Link>
+      </div>
+
+      <form noValidate onSubmit={onSubmit} className="mt-6 flex flex-col gap-4">
         <Input label="Full name (optional)" autoComplete="name" autoFocus value={name} onChange={(e) => setName(e.target.value)} maxLength={120} />
         <Input
           label="Work email"

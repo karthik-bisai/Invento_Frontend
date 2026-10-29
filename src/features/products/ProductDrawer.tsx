@@ -7,6 +7,7 @@ import { Drawer } from '@/components/ui/Drawer'
 import { Input } from '@/components/ui/Input'
 import { useAuth } from '@/features/auth/AuthContext'
 import { StockedList } from '@/features/inventory/StockedList'
+import { getCurrencyInfo } from '@/lib/currency'
 import type { Product } from '@/types'
 import { useCreateProduct, useDeleteProduct, useEditProduct, useReorderLevel } from './hooks'
 
@@ -29,9 +30,13 @@ interface Props {
  * Mount with `key={product?.id ?? target}` so form state resets per record.
  */
 export function ProductDrawer({ target, onClose }: Props) {
-  const { hasRole } = useAuth()
-  const isAdmin = hasRole('ADMIN')
-  const isManager = hasRole('ADMIN', 'INVENTORY_MANAGER')
+  const { hasRole, can, user } = useAuth()
+  const currencyInfo = getCurrencyInfo(user?.organization_currency)
+  const canEdit = can('products:edit') || hasRole('ADMIN')
+  const canDelete = can('products:delete') || hasRole('ADMIN')
+  const canCreate = can('products:create') || hasRole('ADMIN', 'INVENTORY_MANAGER')
+  const isAdmin = canEdit
+  const isManager = canEdit || hasRole('ADMIN', 'INVENTORY_MANAGER')
   const product = target && target !== 'new' ? target : null
   const creating = target === 'new'
 
@@ -120,7 +125,7 @@ export function ProductDrawer({ target, onClose }: Props) {
         description={creating ? 'Add a product to the catalogue' : product!.sku}
         footer={
           <>
-            {isAdmin && product && (
+            {canDelete && product && (
               <Button variant="ghost" className="mr-auto text-crit-fg" onClick={() => setConfirmDelete(true)}>
                 <Trash2 className="size-3.5" aria-hidden />
                 Delete
@@ -151,7 +156,7 @@ export function ProductDrawer({ target, onClose }: Props) {
           <Input label="Name" value={name} onChange={(e) => setName(e.target.value)} error={errors.name} disabled={!fullEdit} />
           <div className="grid grid-cols-2 gap-3">
             <Input label="Category" value={category} onChange={(e) => setCategory(e.target.value)} error={errors.category} disabled={!fullEdit} />
-            <Input label="Unit price (USD)" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} error={errors.price} disabled={!fullEdit} className="num" />
+            <Input label={`Unit price (${currencyInfo.code})`} inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} error={errors.price} disabled={!fullEdit} className="num" />
           </div>
           <Input
             label="Reorder level"

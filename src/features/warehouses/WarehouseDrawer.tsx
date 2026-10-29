@@ -19,8 +19,10 @@ interface Props {
 
 /** Admins create, edit and delete; inventory managers can create and view. Mount with a per-record `key`. */
 export function WarehouseDrawer({ target, onClose }: Props) {
-  const { hasRole } = useAuth()
-  const isAdmin = hasRole('ADMIN')
+  const { hasRole, can } = useAuth()
+  const canEdit = can('warehouses:edit') || hasRole('ADMIN')
+  const canDelete = can('warehouses:delete') || hasRole('ADMIN')
+  const canCreate = can('warehouses:create') || hasRole('ADMIN', 'INVENTORY_MANAGER')
   const warehouse = target && target !== 'new' ? target : null
   const creating = target === 'new'
 
@@ -43,7 +45,7 @@ export function WarehouseDrawer({ target, onClose }: Props) {
     )
   }
 
-  const readOnly = !creating && !isAdmin
+  const readOnly = creating ? !canCreate : !canEdit
   const errors = {
     name: name.trim() ? undefined : 'Required.',
     location: location.trim() ? undefined : 'Required.',
@@ -87,7 +89,7 @@ export function WarehouseDrawer({ target, onClose }: Props) {
         description={creating ? 'Add a stocking location' : warehouse!.location}
         footer={
           <>
-            {isAdmin && warehouse && (
+            {canDelete && warehouse && (
               <Button variant="ghost" className="mr-auto text-crit-fg" onClick={() => setConfirmDelete(true)}>
                 <Trash2 className="size-3.5" aria-hidden />
                 Delete

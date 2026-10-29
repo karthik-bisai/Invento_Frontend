@@ -70,7 +70,7 @@ export function ReportsPage() {
   const lowItems = lowStock.data ?? []
 
   return (
-    <div className="mx-auto flex max-w-7xl flex-col gap-6">
+    <div className="flex w-full flex-col gap-6">
       <PageHeader title="Reports" description="Stock position and replenishment needs. Figures refresh automatically." />
 
       <KpiCards />

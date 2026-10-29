@@ -1,11 +1,54 @@
 // Mirrors backend Pydantic schemas (app/schemas/*). Decimals arrive as strings.
 
-export type Role = 'ADMIN' | 'INVENTORY_MANAGER' | 'WAREHOUSE_STAFF'
+export type Role = 'ADMIN' | 'INVENTORY_MANAGER' | 'WAREHOUSE_STAFF' | 'WAREHOUSE_MANAGER' | (string & {})
 
-export const ROLE_LABELS: Record<Role, string> = {
+export const ROLE_LABELS: Record<string, string> = {
   ADMIN: 'Administrator',
   INVENTORY_MANAGER: 'Inventory Manager',
   WAREHOUSE_STAFF: 'Warehouse Staff',
+  WAREHOUSE_MANAGER: 'Warehouse Manager',
+}
+
+export function formatRoleLabel(role: string): string {
+  if (ROLE_LABELS[role]) return ROLE_LABELS[role]
+  return role
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+export interface PermissionAction {
+  action: string
+  label: string
+}
+
+export interface PermissionCatalogItem {
+  module: string
+  label: string
+  actions: PermissionAction[]
+}
+
+export interface OrganizationRole {
+  id: string
+  organization_id: string
+  name: string
+  description?: string | null
+  is_system: boolean
+  permissions: string[]
+  user_count: number
+  created_at?: string | null
+  updated_at?: string | null
+}
+
+export interface RoleCreateInput {
+  name: string
+  description?: string
+  permissions: string[]
+}
+
+export interface RoleUpdateInput {
+  name?: string
+  description?: string
+  permissions?: string[]
 }
 
 export type ThemePreference = 'system' | 'light' | 'dark'
@@ -30,14 +73,30 @@ export interface User {
   id: string
   email: string
   role: Role
+  role_id?: string | null
   is_active: boolean
   email_verified?: boolean
   full_name?: string | null
   job_title?: string | null
+  department?: string | null
   phone?: string | null
   avatar_url?: string | null
+  organization_id?: string | null
+  org_code?: string | null
+  organization_name?: string | null
+  organization_currency?: string
   preferences?: Preferences
   created_at?: string | null
+  permissions?: string[]
+}
+
+export interface Organization {
+  id: string
+  org_code: string
+  name: string
+  location?: string | null
+  currency: string
+  created_at: string
 }
 
 export interface UserBrief {

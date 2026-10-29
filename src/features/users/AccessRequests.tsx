@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Check, X } from 'lucide-react'
 import { getErrorMessage } from '@/api/errors'
 import { Avatar } from '@/components/layout/Avatar'
@@ -9,11 +9,12 @@ import { Modal } from '@/components/ui/Modal'
 import { Pagination } from '@/components/ui/Pagination'
 import { Select } from '@/components/ui/Select'
 import { timeAgo } from '@/lib/format'
-import { displayName, ROLE_LABELS, type AccessRequest, type RequestStatus, type Role } from '@/types'
+import { displayName, formatRoleLabel, ROLE_LABELS, type AccessRequest, type RequestStatus, type Role } from '@/types'
 import { type RequestFilter, useAccessRequests, useApproveRequest, useRejectRequest } from './requests'
+import { useRoles } from './rolesApi'
 
 const PAGE_SIZE = 10
-const ROLES = Object.keys(ROLE_LABELS) as Role[]
+const DEFAULT_ROLES = Object.keys(ROLE_LABELS) as Role[]
 
 const FILTERS: { value: RequestFilter; label: string }[] = [
   { value: 'PENDING', label: 'Pending' },
@@ -30,7 +31,29 @@ const STATUS: Record<RequestStatus, { label: string; variant: BadgeVariant }> = 
 
 function Decision({ request, onDecline }: { request: AccessRequest; onDecline: () => void }) {
   const approve = useApproveRequest()
-  const [role, setRole] = useState<Role>('WAREHOUSE_STAFF')
+  const rolesQuery = useRoles()
+
+  const availableRoles = useMemo(() => {
+    if (rolesQuery.data && rolesQuery.data.length > 0) {
+      return rolesQuery.data.map((r) => ({
+        value: r.name,
+        label: r.name,
+      }))
+    }
+    return DEFAULT_ROLES.map((r) => ({
+      value: r,
+      label: formatRoleLabel(r),
+    }))
+  }, [rolesQuery.data])
+
+  const defaultRole = useMemo(() => {
+    const staff = availableRoles.find(
+      (r) => r.value === 'WAREHOUSE_STAFF' || r.value.toLowerCase() === 'warehouse staff',
+    )
+    return staff ? staff.value : 'WAREHOUSE_STAFF'
+  }, [availableRoles])
+
+  const [role, setRole] = useState<Role>(defaultRole)
   const [error, setError] = useState<string>()
 
   async function go() {
@@ -46,9 +69,9 @@ function Decision({ request, onDecline }: { request: AccessRequest; onDecline: (
     <div className="flex flex-wrap items-center justify-end gap-2">
       <div className="w-40">
         <Select aria-label={`Role for ${displayName(request.user)}`} value={role} onChange={(e) => setRole(e.target.value as Role)} className="h-8 text-xs">
-          {ROLES.map((r) => (
-            <option key={r} value={r}>
-              {ROLE_LABELS[r]}
+          {availableRoles.map((r) => (
+            <option key={r.value} value={r.value}>
+              {r.label}
             </option>
           ))}
         </Select>

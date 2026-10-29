@@ -24,7 +24,7 @@ const columns: Column<Product>[] = [
 ]
 
 export function ProductsPage() {
-  const { hasRole } = useAuth()
+  const { hasRole, can } = useAuth()
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [target, setTarget] = useState<ProductTarget>(null)
@@ -33,12 +33,12 @@ export function ProductsPage() {
   const products = useProducts({ page, size: PAGE_SIZE, q })
 
   return (
-    <div className="mx-auto flex max-w-7xl flex-col gap-4">
+    <div className="flex w-full flex-col gap-4">
       <PageHeader
         title="Products"
         description="The catalogue of items you stock. Quantities live under Inventory."
         action={
-          hasRole('ADMIN', 'INVENTORY_MANAGER') && (
+          (can('products:create') || hasRole('ADMIN', 'INVENTORY_MANAGER')) && (
             <Button variant="primary" onClick={() => setTarget('new')}>
               <Plus className="size-3.5" aria-hidden />
               New product

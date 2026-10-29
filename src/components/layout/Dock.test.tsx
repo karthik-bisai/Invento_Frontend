@@ -19,17 +19,17 @@ const expectNames = (expected: string[]) => waitFor(() => expect(names()).toEqua
 describe('Dock', () => {
   it('shows every destination to admins', async () => {
     await setup('ADMIN')
-    await expectNames(['Overview', 'Inventory', 'Products', 'Warehouses', 'Reports', 'Users'])
+    await expectNames(['Invento home', 'Overview', 'Inventory', 'Products', 'Warehouses', 'Reports', 'Users'])
   })
 
   it('hides users from managers', async () => {
     await setup('INVENTORY_MANAGER')
-    await expectNames(['Overview', 'Inventory', 'Products', 'Warehouses', 'Reports'])
+    await expectNames(['Invento home', 'Overview', 'Inventory', 'Products', 'Warehouses', 'Reports'])
   })
 
   it('shows warehouse staff only the screens they can open', async () => {
     await setup('WAREHOUSE_STAFF')
-    await expectNames(['Overview', 'Inventory', 'Products'])
+    await expectNames(['Invento home', 'Overview', 'Inventory', 'Products'])
   })
 
   it('marks the current page for assistive tech', async () => {

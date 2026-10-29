@@ -52,7 +52,7 @@ export function CodeSignInPage() {
       return data.resend_in
     } catch (err) {
       setError(getErrorMessage(err, 'We couldn’t send a code. Please try again.'))
-      return getRetryAfter(err)
+      return undefined
     }
   }
 

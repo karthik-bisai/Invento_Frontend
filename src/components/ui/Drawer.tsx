@@ -9,10 +9,17 @@ interface DrawerProps {
   description?: string
   children: ReactNode
   footer?: ReactNode
+  size?: 'md' | 'lg' | 'xl'
+}
+
+const SIZES = {
+  md: 'max-w-md',
+  lg: 'max-w-lg sm:max-w-xl',
+  xl: 'max-w-md sm:max-w-2xl',
 }
 
 /** Right-hand slide-over on the native <dialog> (focus trap, Esc, inert page). Full-width on phones. */
-export function Drawer({ open, onClose, title, description, children, footer }: DrawerProps) {
+export function Drawer({ open, onClose, title, description, children, footer, size = 'md' }: DrawerProps) {
   const ref = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
@@ -30,7 +37,7 @@ export function Drawer({ open, onClose, title, description, children, footer }: 
         if (e.target === ref.current) onClose()
       }}
       aria-labelledby="drawer-title"
-      className="drawer m-0 ml-auto h-dvh max-h-none w-full max-w-md border-l border-border bg-surface p-0 text-fg shadow-pop sm:my-2 sm:mr-2 sm:h-[calc(100dvh-1rem)] sm:rounded-xl sm:border"
+      className={`drawer m-0 ml-auto h-dvh max-h-none w-full ${SIZES[size]} border-l border-border bg-surface p-0 text-fg shadow-pop sm:my-2 sm:mr-2 sm:h-[calc(100dvh-1rem)] sm:rounded-xl sm:border`}
     >
       {open && (
         <div className="flex h-full flex-col">

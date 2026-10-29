@@ -94,7 +94,7 @@ export function InventoryPage() {
   const filtersActive = !!(search || warehouseId || lowStock)
 
   return (
-    <div className="mx-auto flex max-w-7xl flex-col gap-6">
+    <div className="flex w-full flex-col gap-6">
       <PageHeader
         title="Inventory"
         description="Every product in every warehouse. Click a row to update counts."

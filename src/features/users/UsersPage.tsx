@@ -12,20 +12,23 @@ import { Pagination } from '@/components/ui/Pagination'
 import { useAuth } from '@/features/auth/AuthContext'
 import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 import { cn } from '@/lib/cn'
-import { displayName, ROLE_LABELS, type User } from '@/types'
+import { shortDate } from '@/lib/format'
+import { displayName, formatRoleLabel, type User } from '@/types'
 import { AccessRequests } from './AccessRequests'
 import { useAccessRequests } from './requests'
+import { RolesManagement } from './RolesManagement'
 import { useUsers } from './hooks'
 import { UserDrawer, type UserTarget } from './UserDrawer'
 
 const PAGE_SIZE = 15
 
-type Tab = 'people' | 'requests'
+type Tab = 'people' | 'requests' | 'roles'
 
 export function UsersPage() {
   const { user: me } = useAuth()
   const [params, setParams] = useSearchParams()
-  const tab: Tab = params.get('tab') === 'requests' ? 'requests' : 'people'
+  const rawTab = params.get('tab')
+  const tab: Tab = rawTab === 'requests' ? 'requests' : rawTab === 'roles' ? 'roles' : 'people'
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [target, setTarget] = useState<UserTarget>(null)
@@ -52,8 +55,48 @@ export function UsersPage() {
         </div>
       ),
     },
-    { key: 'role', header: 'Role', hideOnMobile: true, sortValue: (u) => ROLE_LABELS[u.role], render: (u) => <Badge variant={u.role === 'ADMIN' ? 'info' : 'neutral'}>{ROLE_LABELS[u.role]}</Badge> },
-    { key: 'status', header: 'Status', sortValue: (u) => Number(u.is_active), render: (u) => <Badge variant={u.is_active ? 'success' : 'neutral'}>{u.is_active ? 'Active' : 'Inactive'}</Badge> },
+    {
+      key: 'role',
+      header: 'Role',
+      hideOnMobile: true,
+      sortValue: (u) => formatRoleLabel(u.role),
+      render: (u) => <Badge variant={u.role === 'ADMIN' ? 'info' : 'neutral'}>{formatRoleLabel(u.role)}</Badge>,
+    },
+    {
+      key: 'job_title',
+      header: 'Job Title',
+      hideOnMobile: true,
+      render: (u) => <span className="text-sm text-fg-muted">{u.job_title || '—'}</span>,
+    },
+    {
+      key: 'department',
+      header: 'Department',
+      hideOnMobile: true,
+      render: (u) => <span className="text-sm text-fg-muted">{u.department || '—'}</span>,
+    },
+    {
+      key: 'email_verified',
+      header: 'Email Status',
+      hideOnMobile: true,
+      render: (u) => (
+        <Badge variant={u.email_verified !== false ? 'success' : 'warning'}>
+          {u.email_verified !== false ? 'Verified' : 'Unverified'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Account Status',
+      sortValue: (u) => Number(u.is_active),
+      render: (u) => <Badge variant={u.is_active ? 'success' : 'neutral'}>{u.is_active ? 'Active' : 'Inactive'}</Badge>,
+    },
+    {
+      key: 'created_at',
+      header: 'Date Created',
+      hideOnMobile: true,
+      sortValue: (u) => u.created_at ?? '',
+      render: (u) => <span className="text-xs text-fg-subtle">{u.created_at ? shortDate(u.created_at) : '—'}</span>,
+    },
   ]
 
   const tabButton = (id: Tab, label: string, badge?: number) => (
@@ -73,7 +116,7 @@ export function UsersPage() {
   )
 
   return (
-    <div className="mx-auto flex max-w-7xl flex-col gap-4">
+    <div className="flex w-full flex-col gap-4">
       <PageHeader
         title="Users"
         description="Who can sign in, and what they can do. New sign-ups wait under Requests for your approval."
@@ -90,10 +133,13 @@ export function UsersPage() {
       <div role="tablist" aria-label="Users" className="inline-flex w-fit gap-1 rounded-lg bg-surface-muted p-1">
         {tabButton('people', 'People')}
         {tabButton('requests', 'Requests', waiting)}
+        {tabButton('roles', 'Roles & Permissions')}
       </div>
 
       {tab === 'requests' ? (
         <AccessRequests />
+      ) : tab === 'roles' ? (
+        <RolesManagement />
       ) : (
         <>
           <div className="w-full sm:max-w-xs">

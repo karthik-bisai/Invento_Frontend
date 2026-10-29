@@ -9,11 +9,20 @@ import { Segmented } from '@/components/ui/Segmented'
 import { Switch } from '@/components/ui/Switch'
 import { useAuth } from '@/features/auth/AuthContext'
 import { useTheme } from '@/hooks/useTheme'
+import { SUPPORTED_CURRENCIES, getCurrencyInfo, setAppCurrency } from '@/lib/currency'
 import { describeDevice } from '@/lib/device'
 import { timeAgo } from '@/lib/format'
 import { validatePassword } from '@/lib/password'
 import { DEFAULT_PREFERENCES, type DeviceSession, type ThemePreference } from '@/types'
-import { useChangePassword, useRevokeOtherSessions, useRevokeSession, useSessions, useUpdatePreferences } from './hooks'
+import {
+  useChangePassword,
+  useOrganization,
+  useRevokeOtherSessions,
+  useRevokeSession,
+  useSessions,
+  useUpdateOrganization,
+  useUpdatePreferences,
+} from './hooks'
 
 function Section({ title, description, children }: { title: string; description: string; children: ReactNode }) {
   return (
@@ -28,6 +37,82 @@ function Section({ title, description, children }: { title: string; description:
 }
 
 const Card = ({ children }: { children: ReactNode }) => <div className="divide-y divide-border rounded-lg border border-border bg-surface">{children}</div>
+
+function OrganizationSection() {
+  const { user, hasRole } = useAuth()
+  const orgQuery = useOrganization()
+  const updateOrg = useUpdateOrganization()
+  const isAdmin = hasRole('ADMIN')
+  const [currencyError, setCurrencyError] = useState<string>()
+  const [saved, setSaved] = useState(false)
+
+  const currentOrg = orgQuery.data
+  const activeCurrency = currentOrg?.currency || user?.organization_currency || 'USD'
+
+  async function handleCurrencyChange(code: string) {
+    setCurrencyError(undefined)
+    setSaved(false)
+    try {
+      await updateOrg.mutateAsync({ currency: code })
+      setAppCurrency(code)
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2500)
+    } catch (err) {
+      setCurrencyError(getErrorMessage(err, 'Failed to update currency.'))
+    }
+  }
+
+  return (
+    <Section title="Organization" description="Organization details and default currency.">
+      <Card>
+        <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-4">
+          <div>
+            <p className="text-sm font-medium">Organization ID</p>
+            <p className="mt-0.5 text-xs text-fg-muted">Share this code with employees registering for your organization.</p>
+          </div>
+          <span className="rounded bg-surface-muted px-2.5 py-1 font-mono text-sm font-semibold text-fg">
+            {user?.org_code || currentOrg?.org_code || '—'}
+          </span>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-4">
+          <div>
+            <p className="text-sm font-medium">Currency</p>
+            <p className="mt-0.5 text-xs text-fg-muted">
+              {isAdmin
+                ? 'Sets the operational display currency for products, inventory, orders, and reports.'
+                : 'Configured by organization administrators.'}
+            </p>
+          </div>
+
+          {isAdmin ? (
+            <div className="flex items-center gap-2">
+              <select
+                aria-label="Organization currency"
+                value={activeCurrency}
+                disabled={updateOrg.isPending}
+                onChange={(e) => handleCurrencyChange(e.target.value)}
+                className="h-9 rounded-md border border-border bg-surface px-3 py-1.5 text-sm font-medium text-fg shadow-xs transition-colors focus:border-accent focus:outline-hidden"
+              >
+                {SUPPORTED_CURRENCIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.code} — {c.name} ({c.symbol})
+                  </option>
+                ))}
+              </select>
+              {saved && <span className="text-xs font-medium text-ok-fg">Saved</span>}
+              {currencyError && <span className="text-xs font-medium text-crit-fg">{currencyError}</span>}
+            </div>
+          ) : (
+            <span className="text-sm font-medium text-fg">
+              {getCurrencyInfo(activeCurrency).code} ({getCurrencyInfo(activeCurrency).symbol})
+            </span>
+          )}
+        </div>
+      </Card>
+    </Section>
+  )
+}
 
 function PasswordForm() {
   const change = useChangePassword()
@@ -190,6 +275,8 @@ export function SettingsPage() {
         </Card>
       </Section>
 
+      <OrganizationSection />
+
       <Section title="Notifications" description="What gets your attention, and where.">
         <Card>
           <Switch
@@ -220,3 +307,4 @@ export function SettingsPage() {
     </div>
   )
 }
+

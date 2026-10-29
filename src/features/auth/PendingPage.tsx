@@ -3,7 +3,6 @@ import { Link, Navigate, useLocation } from 'react-router-dom'
 import { Check } from 'lucide-react'
 import { Logo } from '@/components/brand/Logo'
 import { Button } from '@/components/ui/Button'
-import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { cn } from '@/lib/cn'
 import { useAuth } from './AuthContext'
 
@@ -30,7 +29,6 @@ export function PendingPage() {
         <Link to="/" aria-label="Back to home" className="rounded-md">
           <Logo />
         </Link>
-        <ThemeToggle />
       </header>
 
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center px-5 pb-16 text-center">

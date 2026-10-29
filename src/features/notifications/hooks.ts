@@ -9,10 +9,11 @@ interface NotificationPage {
 
 const KEY = ['notifications']
 
-export function useNotifications() {
+export function useNotifications(unreadOnly = false) {
   return useQuery({
-    queryKey: KEY,
-    queryFn: async () => (await api.get<NotificationPage>('/notifications')).data,
+    queryKey: [...KEY, { unreadOnly }],
+    queryFn: async () =>
+      (await api.get<NotificationPage>('/notifications', { params: unreadOnly ? { unread: true } : {} })).data,
     refetchInterval: 30_000,
   })
 }
@@ -32,6 +33,16 @@ export function useMarkAllRead() {
   return useMutation({
     mutationFn: async () => {
       await api.post('/notifications/read-all')
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
+  })
+}
+
+export function useClearNotification() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await api.post(`/notifications/${id}/clear`)
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
   })

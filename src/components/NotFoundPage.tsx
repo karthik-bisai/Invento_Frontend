@@ -1,7 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { Logo } from '@/components/brand/Logo'
 import { Button } from '@/components/ui/Button'
-import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { useAuth } from '@/features/auth/AuthContext'
 
 /** Shown for any address that doesn't exist. Signed-in people are offered their overview, everyone else the home page. */
@@ -14,7 +13,6 @@ export function NotFoundPage() {
         <Link to="/" aria-label="Back to home" className="rounded-md">
           <Logo />
         </Link>
-        <ThemeToggle />
       </header>
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center px-5 pb-24 text-center">
         <p aria-hidden className="font-display animate-rise text-8xl leading-none text-accent">

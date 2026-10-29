@@ -21,7 +21,14 @@ function useInvalidate() {
 export function useCreateUser() {
   const invalidate = useInvalidate()
   return useMutation({
-    mutationFn: async (data: { email: string; password: string; role: Role }) => (await api.post<User>('/auth/users', data)).data,
+    mutationFn: async (data: {
+      email: string
+      password: string
+      role: Role
+      full_name?: string
+      job_title?: string
+      department?: string
+    }) => (await api.post<User>('/auth/users', data)).data,
     onSuccess: invalidate,
   })
 }
@@ -29,8 +36,20 @@ export function useCreateUser() {
 export function useUpdateUser() {
   const invalidate = useInvalidate()
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: { role?: Role; is_active?: boolean; password?: string } }) =>
-      (await api.patch<User>(`/auth/users/${id}`, data)).data,
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: string
+      data: {
+        full_name?: string
+        job_title?: string
+        department?: string
+        role?: Role
+        is_active?: boolean
+        password?: string
+      }
+    }) => (await api.patch<User>(`/auth/users/${id}`, data)).data,
     onSuccess: invalidate,
   })
 }

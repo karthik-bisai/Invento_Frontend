@@ -63,10 +63,10 @@ describe('details', () => {
     await setup()
     vi.spyOn(api, 'patch').mockRejectedValue(apiError(422, 'phone: Enter a phone number using digits, spaces, + ( ) - .'))
     const user = userEvent.setup()
-    await user.type(screen.getByLabelText('Job title'), 'Picker')
+    await user.type(screen.getByLabelText('Full name'), 'Picker')
     await user.click(screen.getByRole('button', { name: 'Save changes' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('Enter a phone number')
-    expect(screen.getByLabelText('Job title')).toHaveValue('Picker')
+    expect(screen.getByLabelText('Full name')).toHaveValue('Picker')
   })
 })
 

@@ -8,7 +8,16 @@ export default defineConfig({
   resolve: { alias: { '@': path.resolve(import.meta.dirname, 'src') } },
   // strictPort: if 5173 is taken, fail loudly. Quietly moving to 5174 would no longer match the gateway's allowed
   // address (APP_URL), and sign-in would fail with a confusing CORS error.
-  server: { port: 5173, strictPort: true },
+  server: {
+    port: 5173,
+    strictPort: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:4000',
+        changeOrigin: true,
+      },
+    },
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],

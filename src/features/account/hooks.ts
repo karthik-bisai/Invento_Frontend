@@ -88,3 +88,29 @@ export function useRevokeOtherSessions() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['sessions'] }),
   })
 }
+
+export function useOrganization() {
+  return useQuery({
+    queryKey: ['organization'],
+    queryFn: async () => (await api.get<import('@/types').Organization>('/organizations/me')).data,
+  })
+}
+
+export function useUpdateOrganization() {
+  const qc = useQueryClient()
+  const { user, setUser } = useAuth()
+  return useMutation({
+    mutationFn: async (data: Partial<import('@/types').Organization>) =>
+      (await api.patch<import('@/types').Organization>('/organizations/me', data)).data,
+    onSuccess: (updatedOrg) => {
+      qc.invalidateQueries({ queryKey: ['organization'] })
+      if (user && updatedOrg.currency) {
+        setUser({ ...user, organization_currency: updatedOrg.currency })
+      }
+      qc.invalidateQueries({ queryKey: ['products'] })
+      qc.invalidateQueries({ queryKey: ['inventory'] })
+      qc.invalidateQueries({ queryKey: ['warehouses'] })
+    },
+  })
+}
+

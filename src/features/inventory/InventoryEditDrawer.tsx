@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/Button'
 import { Drawer } from '@/components/ui/Drawer'
 import { Input } from '@/components/ui/Input'
 import { useAuth } from '@/features/auth/AuthContext'
-import { int } from '@/lib/format'
+import { getCurrencyInfo } from '@/lib/currency'
+import { int, money } from '@/lib/format'
 import type { InventoryRow } from '@/types'
 import { useSetReorderLevel, useUpdateProduct, useUpdateStock } from './hooks'
 import { StockBadge } from './stock'
@@ -35,9 +36,11 @@ interface Props {
  * Mount with `key={row.id}` so form state resets per record.
  */
 export function InventoryEditDrawer({ row, onClose }: Props) {
-  const { hasRole } = useAuth()
-  const isAdmin = hasRole('ADMIN')
-  const canEditReorder = hasRole('ADMIN', 'INVENTORY_MANAGER')
+  const { user, hasRole, can } = useAuth()
+  const currencyInfo = getCurrencyInfo(user?.organization_currency)
+  const canEditStock = can('inventory:edit') || hasRole('ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_STAFF')
+  const isAdmin = can('products:edit') || hasRole('ADMIN')
+  const canEditReorder = can('products:edit') || hasRole('ADMIN', 'INVENTORY_MANAGER')
 
   const updateStock = useUpdateStock()
   const updateProduct = useUpdateProduct()
@@ -86,7 +89,7 @@ export function InventoryEditDrawer({ row, onClose }: Props) {
     ...(reorderDirty && { reorder_level: Number(reorder) }),
   }
   const productDirty = isAdmin ? Object.keys(productFields).length > 0 : false
-  const dirty = stockDirty || productDirty || (!isAdmin && reorderDirty)
+  const dirty = (canEditStock && stockDirty) || productDirty || (!isAdmin && canEditReorder && reorderDirty)
 
   async function save() {
     if (!row) return
@@ -153,8 +156,8 @@ export function InventoryEditDrawer({ row, onClose }: Props) {
         <fieldset className="flex flex-col gap-3">
           <legend className="mb-1 text-xs font-semibold">Stock at {row.warehouse_name}</legend>
           <div className="grid grid-cols-2 gap-3">
-            <Input label="On hand" inputMode="numeric" value={onHand} onChange={(e) => setOnHand(e.target.value)} error={errors.onHand} className="num" />
-            <Input label="Reserved" inputMode="numeric" value={reserved} onChange={(e) => setReserved(e.target.value)} error={errors.reserved} className="num" />
+            <Input label="On hand" inputMode="numeric" value={onHand} onChange={(e) => setOnHand(e.target.value)} error={errors.onHand} disabled={!canEditStock} className="num" />
+            <Input label="Reserved" inputMode="numeric" value={reserved} onChange={(e) => setReserved(e.target.value)} error={errors.reserved} disabled={!canEditStock} className="num" />
           </div>
           <p className="num text-xs text-fg-subtle">
             Available: {WHOLE.test(onHand) && WHOLE.test(reserved) ? int.format(Number(onHand) - Number(reserved)) : '—'}
@@ -170,14 +173,14 @@ export function InventoryEditDrawer({ row, onClose }: Props) {
                 <Input label="SKU" value={sku} onChange={(e) => setSku(e.target.value)} error={errors.sku} className="font-mono" />
                 <Input label="Category" value={category} onChange={(e) => setCategory(e.target.value)} error={errors.category} />
               </div>
-              <Input label="Unit price (USD)" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} error={errors.price} className="num" />
+              <Input label={`Unit price (${currencyInfo.code})`} inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} error={errors.price} className="num" />
             </>
           ) : (
             <dl className="grid grid-cols-2 gap-3">
               <ReadOnly label="Name" value={row.product_name} />
               <ReadOnly label="SKU" value={row.sku} />
               <ReadOnly label="Category" value={row.category} />
-              <ReadOnly label="Unit price" value={`$${Number(row.unit_price).toFixed(2)}`} />
+              <ReadOnly label="Unit price" value={money.format(row.unit_price, user?.organization_currency)} />
             </dl>
           )}
           {canEditReorder ? (

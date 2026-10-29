@@ -150,4 +150,24 @@ describe('AlertBell', () => {
     await user.keyboard('{Escape}')
     expect(screen.queryByRole('region', { name: 'Alerts' })).not.toBeInTheDocument()
   })
+
+  it('clears an individual notification', async () => {
+    setup()
+    const post = vi.spyOn(api, 'post').mockResolvedValue({ data: undefined } as never)
+    const user = userEvent.setup()
+    await user.click(await screen.findByRole('button', { name: '3 alerts' }))
+    const clearButtons = screen.getAllByRole('button', { name: 'Clear notification' })
+    await user.click(clearButtons[0])
+    await waitFor(() => expect(post).toHaveBeenCalledWith('/notifications/n1/clear'))
+  })
+
+  it('opens notification details modal', async () => {
+    setup()
+    const user = userEvent.setup()
+    await user.click(await screen.findByRole('button', { name: '3 alerts' }))
+    const viewButtons = screen.getAllByRole('button', { name: 'View details' })
+    await user.click(viewButtons[0])
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(screen.getByText('Why was this generated?')).toBeInTheDocument()
+  })
 })
