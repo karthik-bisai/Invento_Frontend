@@ -48,7 +48,7 @@ export function LedgerDemo({ className }: { className?: string }) {
   }, [reduced])
 
   return (
-    <div aria-hidden className={cn('w-full max-w-md rounded-xl border border-border bg-surface p-2 shadow-pop', className)}>
+    <div aria-hidden className={cn('w-full max-w-md lg:max-w-lg rounded-xl border border-border bg-surface p-2 sm:p-3 shadow-pop', className)}>
       <div className="flex items-center justify-between px-3 pb-2 pt-2.5">
         <p className="text-sm font-medium">Main warehouse</p>
         <span className="flex items-center gap-1.5 text-xs text-fg-subtle">

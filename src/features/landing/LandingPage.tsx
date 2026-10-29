@@ -68,7 +68,7 @@ export function LandingPage() {
   return (
     <div className="min-h-screen overflow-x-clip bg-bg text-fg">
       {/* Top Header */}
-      <header className="animate-fade mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
+      <header className="animate-fade mx-auto flex h-16 w-full max-w-[1440px] items-center justify-between px-6 sm:px-10 lg:px-12 xl:px-16">
         <Logo />
         <nav aria-label="Account" className="flex items-center gap-2">
           <Link to="/login">
@@ -82,23 +82,23 @@ export function LandingPage() {
 
       <main>
         {/* Hero Section */}
-        <section className="mx-auto grid max-w-6xl items-center gap-14 px-5 pb-24 pt-12 sm:px-8 lg:grid-cols-[1.1fr_1fr] lg:pt-20">
+        <section className="mx-auto grid w-full max-w-[1440px] items-center gap-12 px-6 pb-24 pt-12 sm:px-10 lg:grid-cols-[1.25fr_1fr] lg:gap-16 lg:pt-20 xl:px-16 xl:gap-20">
           <div>
             <div className="animate-rise inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-fg-muted" style={delay(50)}>
               <span className="size-2 rounded-full bg-accent" />
               Enterprise Warehouse & Inventory Intelligence
             </div>
 
-            <h1 className="font-display mt-6 text-5xl leading-[0.98] sm:text-6xl lg:text-7xl">
-              <span className="animate-rise block" style={delay(120)}>
-                Know what’s
-              </span>{' '}
-              <span className="animate-rise block text-accent" style={delay(240)}>
+            <h1 className="font-display mt-6 text-5xl leading-[1.04] sm:text-6xl lg:text-7xl xl:text-8xl">
+              <span className="animate-rise inline" style={delay(120)}>
+                Know what’s{' '}
+              </span>
+              <span className="animate-rise inline text-accent" style={delay(240)}>
                 on every shelf.
               </span>
             </h1>
 
-            <p className="animate-rise mt-6 max-w-lg text-base leading-relaxed text-fg-muted sm:text-lg" style={delay(380)}>
+            <p className="animate-rise mt-6 max-w-2xl text-lg leading-relaxed text-fg-muted sm:text-xl lg:max-w-3xl" style={delay(380)}>
               Live inventory tracking across all facilities, automated low-stock warnings, and tenant-isolated operations for modern warehousing teams.
             </p>
 
@@ -111,18 +111,18 @@ export function LandingPage() {
                 </Button>
               </Link>
               <Link to="/signup/employee" className="flex-1 sm:flex-initial">
-                <Button className="h-11 w-full px-5 text-sm font-medium sm:w-auto">
+                <Button variant="secondary" className="h-11 w-full px-5 text-sm font-medium sm:w-auto">
                   Register as Employee
                 </Button>
               </Link>
               <Link to="/login" className="flex-1 sm:flex-initial">
-                <Button variant="ghost" className="h-11 w-full px-5 text-sm font-medium sm:w-auto">
+                <Button variant="secondary" className="h-11 w-full px-5 text-sm font-medium sm:w-auto">
                   Sign in
                 </Button>
               </Link>
             </div>
 
-            <div className="animate-rise mt-8 flex items-center gap-6 text-xs text-fg-subtle" style={delay(600)}>
+            <div className="animate-rise mt-8 flex flex-wrap items-center gap-6 text-xs text-fg-subtle sm:text-sm" style={delay(600)}>
               <span className="flex items-center gap-1.5">
                 <CheckCircle2 className="size-3.5 text-ok-fg" />
                 Multi-Tenant Isolation
@@ -138,20 +138,20 @@ export function LandingPage() {
             </div>
           </div>
 
-          <div className="animate-rise justify-self-center lg:justify-self-end" style={delay(450)}>
-            <LedgerDemo className="animate-drift shadow-2xl" />
+          <div className="animate-rise justify-self-center lg:justify-self-end w-full flex justify-center lg:justify-end" style={delay(450)}>
+            <LedgerDemo className="animate-drift shadow-2xl w-full max-w-md lg:max-w-lg" />
           </div>
         </section>
 
         {/* Feature Highlights Section */}
         <section aria-labelledby="features" className="border-y border-border bg-surface">
-          <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
+          <div className="mx-auto w-full max-w-[1440px] px-6 py-20 sm:px-10 lg:px-12 xl:px-16">
             <Reveal>
               <span className="text-xs font-semibold uppercase tracking-wider text-accent">Comprehensive Platform</span>
-              <h2 id="features" className="font-display mt-2 max-w-xl text-3xl leading-tight sm:text-4xl">
+              <h2 id="features" className="font-display mt-2 max-w-2xl text-3xl leading-tight sm:text-4xl lg:text-5xl">
                 Eliminate manual guesswork from your supply chain.
               </h2>
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-fg-muted">
+              <p className="mt-3 max-w-3xl text-base leading-relaxed text-fg-muted sm:text-lg">
                 Replace fragmented spreadsheets with a synchronized ledger designed for warehouse staff, logistics managers, and executive leadership.
               </p>
             </Reveal>
@@ -174,14 +174,14 @@ export function LandingPage() {
         </section>
 
         {/* Roles & Operational Governance Section */}
-        <section aria-labelledby="roles" className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
+        <section aria-labelledby="roles" className="mx-auto w-full max-w-[1440px] px-6 py-20 sm:px-10 lg:px-12 xl:px-16">
           <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr]">
             <Reveal>
               <span className="text-xs font-semibold uppercase tracking-wider text-accent">Access Governance</span>
               <h2 id="roles" className="font-display mt-2 text-3xl leading-tight sm:text-4xl">
                 Everyone sees what they need.
               </h2>
-              <p className="mt-4 max-w-sm text-sm leading-relaxed text-fg-muted">
+              <p className="mt-4 max-w-md text-sm leading-relaxed text-fg-muted sm:text-base">
                 Employee self-registration requests require administrator review. Assign precise designations and departments to protect operational integrity.
               </p>
               <div className="mt-6">
@@ -206,12 +206,12 @@ export function LandingPage() {
         </section>
 
         {/* Bottom CTA Banner */}
-        <section className="mx-auto max-w-6xl px-5 pb-24 sm:px-8">
-          <Reveal className="rounded-2xl border border-border bg-surface-muted px-8 py-14 text-center sm:px-16">
-            <h2 className="font-display mx-auto max-w-2xl text-3xl leading-tight sm:text-4xl">
+        <section className="mx-auto w-full max-w-[1440px] px-6 pb-24 sm:px-10 lg:px-12 xl:px-16">
+          <Reveal className="rounded-2xl border border-border bg-surface-muted px-8 py-16 text-center sm:px-16">
+            <h2 className="font-display mx-auto max-w-3xl text-3xl leading-tight sm:text-4xl lg:text-5xl">
               Ready to streamline your warehouse operations?
             </h2>
-            <p className="mx-auto mt-3 max-w-lg text-sm text-fg-muted">
+            <p className="mx-auto mt-4 max-w-xl text-base text-fg-muted sm:text-lg">
               Get your organization set up in minutes with automated stock tracking and real-time alerts.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
@@ -221,12 +221,12 @@ export function LandingPage() {
                 </Button>
               </Link>
               <Link to="/signup/employee">
-                <Button className="h-11 px-6 text-sm">
+                <Button variant="secondary" className="h-11 px-6 text-sm font-medium">
                   Register as Employee
                 </Button>
               </Link>
               <Link to="/login">
-                <Button variant="ghost" className="h-11 px-6 text-sm">
+                <Button variant="secondary" className="h-11 px-6 text-sm font-medium">
                   Sign in
                 </Button>
               </Link>
@@ -237,7 +237,7 @@ export function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-border bg-surface">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-8 text-xs text-fg-subtle sm:px-8">
+        <div className="mx-auto flex w-full max-w-[1440px] flex-wrap items-center justify-between gap-4 px-6 py-8 text-xs text-fg-subtle sm:px-10 lg:px-12 xl:px-16">
           <Logo />
           <nav aria-label="Legal" className="flex items-center gap-5">
             <Link to="/terms" className="hover:text-fg hover:underline">
